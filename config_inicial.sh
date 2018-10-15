@@ -30,3 +30,17 @@ else
 	echo "gpu_mem not defined. Creating definition"
 	echo "gpu_mem=16" >> $CONFIG
 fi
+
+----------------------------------
+Serviço timesyncd
+
+Edit  /etc/systemd/timesyncd.conf , especially the second line
+
+[Time]
+NTP=your.servername.goes.here
+FallbackNTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org
+#RootDistanceMaxSec=5
+#PollIntervalMinSec=32
+#PollIntervalMaxSec=2048
+
+------------------------------------------
