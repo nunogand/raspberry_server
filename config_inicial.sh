@@ -44,3 +44,21 @@ FallbackNTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.p
 #PollIntervalMaxSec=2048
 
 ------------------------------------------
+
+Debian and Ubuntu users can install the latest stable version of InfluxDB using the apt-get package manager.
+
+curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/os-release
+test $VERSION_ID = "7" && echo "deb https://repos.influxdata.com/debian wheezy stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+test $VERSION_ID = "8" && echo "deb https://repos.influxdata.com/debian jessie stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+test $VERSION_ID = "9" && echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+
+Then, install and start the InfluxDB service:
+
+sudo apt-get update && sudo apt-get install influxdb
+sudo service influxdb start
+Or if your operating system is using systemd (Ubuntu 15.04+, Debian 8+):
+
+sudo apt-get update && sudo apt-get install influxdb
+sudo systemctl unmask influxdb.service
+sudo systemctl start influxdb
