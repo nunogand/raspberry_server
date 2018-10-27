@@ -1,16 +1,62 @@
+colocar ficheiros em /BOOT
+ ssh (ficheiro em branco com este nome)
+ wpa_supplicant.conf
+ 
+Conteudo de wpa_supplicant.conf
+
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+ scan_ssid=1
+ ssid="nome da rede"
+ psk="pass"
+}
+
+1º boot
+aceder por SSH
+
+Configurar IP Fixo:
+modify the file /etc/dhcpcd.conf
+
+
+######################################################
+# TEMPLATE: A different IP address on each network
+#
+#           The arping address should be the router
+#           or some other machine guaranteed to be
+#           available. You need to know the addresses
+#           of the servers. If none of the arpings find
+#           an active machine then you will get a DHCP
+#           allocation.
+######################################################
+interface wlan0
+arping 192.168.1.1
+# arping xxx.xxx.x.xxx #colocar o IP de outros routers possiveis
+
+profile 192.168.1.1
+static ip_address=192.168.1.xxx/24 #o IP escolhido
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1 
+
+profile 192.168.0.254
+static ip_address=192.168.0.44/24
+static routers=192.168.0.254
+static domain_name_servers=192.168.0.254
+
+ 
 RUNNING UPDATE AND UPGRADE
 This one's easy, we'll just call:
 
-apt-get update && apt-get upgrade -y
-where:
+sudo apt-get update 
+sudo apt-get upgrade -y
 
-&& allows you to queue commands one after the other,
--y automatically selects the "yes" option when the user would be prompted to initiate an installation.
+
 
 
 
 --------------------
-exemplo:
+exemplo para instalação de aplicações específicas:
 
 PACKAGES="python-picamera graphicsmagick python-pip"
 apt-get install $PACKAGES -y
@@ -20,25 +66,26 @@ apt-get install $PACKAGES -y
 sudo raspi-config 
 Select Hostname, then change the name from raspberrypi to something
 
+mudar LOCALE e timezone no menu
+Mudar distribuição da memória / expand filesystem
+
 Mudar password
 	passwd
 	
 Adicionar novo utilizador
 	sudo adduser xxxxxx
-	
+	sudo passwd xxxxx #mudar a password do novo user
 	(que será criado em /home/xxxxxx/
 	
-Adicionar utilizador com permissões SUDO
-	sudo adduser alice sudo
-
+Adicionar utilizador XXXXXX com permissões SUDO
+	sudo visudo (fazer scroll e duplicar linha root com novo username)
+	
 Remover user pi (pode não ser boa ideia) - e só depois de estar logado com outro user
 	sudo deluser pi (ou sudo deluser --remove-all-files pi)
 	ou então
 	sudo passwd --lock pi
 	sudo passwd -l root (será que funciona? para lockar a conta root?)
-	ou
-	passwd —lock pi
-	usermod —expiredate 1 pi
+	
 
 Remove the pi user from the sudo group:
 
@@ -53,12 +100,12 @@ Comment out the pi user from the sudoers configuration file:
 
 	
 Criar novo user com as mesmas permissões do user pi
-	groups
-resultado: pi aaa vvv ccc
-	sudo useradd -m -G aaa,vvv,ccc NOVOUSER (ou sudo usermod <newusername> -a -G aaa,vvv,ccc
-	sudo passwd NOVOUSER
+	groups pi
+resultado: pi: aaa vvv ccc
+	# ?funciona? sudo useradd -m -G aaa,vvv,ccc NOVOUSER (ou sudo usermod <newusername> -a -G aaa,vvv,ccc
+	sudo passwd NOVOUSER group #1 a 1
 	
-	sudo visudo (fazer scroll e duplicar linha pi com novo username)
+	
 
 Fazer com que sudo necessite de password
 	sudo nano /etc/sudoers.d/010_pi-nopasswd
@@ -69,24 +116,15 @@ Mudar que users podem aceder via ssh
 	sudo nano /etc/ssh/sshd_config
 	* adicionar no final deste ficheiro:
 	AllowUsers xxxxx aaaaa cccccc nnnnnn
-	* da mesma forma
-	DenyUsers ddddd ffffff
-	* depois de alterar é necessário reiniciar o sshd
-	sudo systemctl restart ssh
 	* impedir acesso root via ssh (o acesso pode depois ser obtido por sudo)
 	PermitRootLogin no
 
+
+	* depois de alterar é necessário reiniciar o sshd
+	sudo systemctl restart ssh
 	
-http://projects.ttlexceeded.com/rpi_customizing_raspbian.html#hardening-the-system
-	
-Create system ssh user group
-	sudo addgroup --system sshusers
-Only users added explicityly to the sshusers group will be permitted access.
-	sudo adduser <yourname> sshusers
 	
 Edit /etc/ssh/sshd_config to include:
-	# restrict ssh access to specific users
-	AllowGroups sshusers
 	# allow root access only with ssh keys
 	# unless needed, disable completely with 'no'
 	PermitRootLogin without-password
@@ -129,6 +167,10 @@ Cron
 para ver tarefas
 	crontab -l
 	
+	
+	0 1 * * * /usr/bin/apt-get update
+	0 10 * * * /usr/bin/apt-get upgrade -y
+
 ------------------------
 Firewall (exemplo)
 install ufw which is a software firewall
@@ -213,7 +255,7 @@ Serviço timesyncd
 Edit  /etc/systemd/timesyncd.conf , especially the second line
 
 [Time]
-NTP=your.servername.goes.here
+NTP=0.pt.pool.ntp.org
 FallbackNTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org
 #RootDistanceMaxSec=5
 #PollIntervalMinSec=32
