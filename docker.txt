@@ -6,6 +6,11 @@ sudo usermod -aG docker your-user
 #  log out and back in for this to take effect
 sudo systemctl enable docker
 sudo systemctl start docker
+
+# test Docker
+sudo docker run --rm hello-world
+
+
 # Docker compose
 ## 1. install required dependencies with apt
 apt update && apt install python3-venv python3-dev libffi-dev libssl-dev
