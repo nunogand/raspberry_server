@@ -1,0 +1,27 @@
+sudo apt update && sudo apt upgrade -y 
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+# use Docker as a non-root user
+sudo usermod -aG docker your-user
+#  log out and back in for this to take effect
+sudo systemctl enable docker
+sudo systemctl start docker
+# Docker compose
+## 1. install required dependencies with apt
+apt update && apt install python3-venv python3-dev libffi-dev libssl-dev
+
+## 2. create directory for docker-compose's virtualenv
+mkdir -p /opt/local/docker-compose
+
+## 3. create virtualenv in which we will install docker-compose
+python3 -m venv /opt/local/docker-compose/venv
+
+## 4. install docker-compose, this may take some time becase some dependecies has to be compiled
+/opt/local/docker-compose/venv/bin/pip install --upgrade pip
+/opt/local/docker-compose/venv/bin/pip install docker-compose
+
+## 5. create a symlink so our fresh docker-compose is available in the $PATH
+ln -s /opt/local/docker-compose/venv/bin/docker-compose /usr/local/bin/docker-compose
+
+# upgrade Docker Compose
+sudo /opt/local/docker-compose/venv/bin/pip install --upgrade docker-compose
