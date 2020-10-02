@@ -1,0 +1,69 @@
+# actualizações automáticas
+sudo apt install unattended-upgrades
+## configuração
+sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
+## periodicidade
+sudo nano /etc/apt/apt.conf.d/02periodic
+### colar
+APT::Periodic::Enable "1";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "1";
+APT::Periodic::Verbose "1";
+
+## fazer o debug da aplicação
+sudo unattended-upgrades -d
+
+# Novo utilizador a pertencer ao grupo sudo
+sudo adduser <username> -G sudo
+# Adicionar utilizador XXXXXX com permissões SUDO?
+sudo visudo (fazer scroll e duplicar linha root com novo username)
+# adicionar todas as permissões de pi ao novo user
+for GROUP in adm dialout cdrom sudo audio video plugdev games users netdev input spi i2c gpio; do sudo adduser username $GROUP; done
+# ou manualmente
+groups pi
+sudo adduser username (group)
+# bloquear user pi
+sudo passwd --lock pi
+
+# pedir pw no sudo
+sudo nano /etc/sudoers.d/010_pi-nopasswd
+# substituir
+user ALL=(ALL) NOPASSWD: ALL
+# por
+user ALL=(ALL) PASSWD: ALL
+
+
+# timesync
+## testar
+timedatectl status
+
+timedatectl list-timezones | grep Lisbon
+sudo timedatectl set-timezone <time zone>
+sudo nano /etc/systemd/timesyncd.conf
+#Comment out the last line and replace default servers by the servers you want to use (on Internet or from the local network)
+
+# Segurança SSH
+sudo nano /etc/ssh/sshd_config
+AllowUsers user
+LoginGraceTime 1m
+ClientAliveInterval 600
+ClientAliveCountMax 0
+
+sudo systemctl restart ssh
+
+# Drives
+## Auto Mount Drive on Startup
+## List the Drive & note UUID
+sudo blkid
+
+##Edit fstab
+##After that, we need to edit fstab to add our drive to startup.
+sudo nano /etc/fstab
+
+##Adding lines to fstab
+##Followed by adding the below-given line to fstab.
+UUID=enter_uuid_here /mnt/Drive_Name auto nofail,uid=enter_uid_here,gid=enter_gid_here,noatime 0 0
+
+sudo reboot
