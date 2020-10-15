@@ -67,3 +67,9 @@ sudo nano /etc/fstab
 UUID=enter_uuid_here /mnt/Drive_Name auto nofail,uid=enter_uid_here,gid=enter_gid_here,noatime 0 0
 
 sudo reboot
+
+# https://github.com/StuartIanNaylor/zram-config
+sudo apt-get install git
+git clone https://github.com/StuartIanNaylor/zram-config
+cd zram-config
+sudo sh install.sh
